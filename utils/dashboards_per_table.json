@@ -1,0 +1,9 @@
+{
+  "TAX_THRESHOLD_BASE_BRAND_COUNTRY": [
+    "04_Brands without SoR Registration",
+    "03_Global Trade Dashboard"
+  ],
+  "DDU_SHIPMENT_PAYMENT_CHECK_MONITOR": [
+    "07 DDU Shipment Payment Check Monitor"
+  ]
+}
