@@ -1,19 +1,18 @@
 import os
 import json
 import requests
-import xml.etree.ElementTree as ET
 from dotenv import load_dotenv
 from utils.tables_list import tables as table_list
 
 # --- Load environment variables ---
 load_dotenv()
 
-TABLEAU_SERVER = os.getenv("TABLEAU_SERVER")
+TABLEAU_SERVER = os.getenv("TABLEAU_SERVER", "").rstrip("/")
 TABLEAU_SITE = os.getenv("TABLEAU_SITE")
 PAT_NAME = os.getenv("TABLEAU_TOKEN_NAME")
 PAT_SECRET = os.getenv("TABLEAU_TOKEN_PASS")
 
-if not all([TABLEAU_SERVER, PAT_NAME, PAT_SECRET]) or TABLEAU_SITE is None:
+if not all([TABLEAU_SERVER, PAT_NAME, PAT_SECRET, TABLEAU_SITE is not None]):
     raise ValueError("❌ Missing one or more environment variables in .env")
 
 print(f"📌 Querying tables: {table_list}")
@@ -30,14 +29,15 @@ auth_payload = {
     }
 }
 
-auth_response = requests.post(auth_url, json=auth_payload)
+auth_response = requests.post(auth_url, json=auth_payload, headers={"Accept": "application/json", "Content-Type": "application/json"})
+if not auth_response.ok:
+    print(f"Auth failed ({auth_response.status_code}): {auth_response.text}")
 auth_response.raise_for_status()
 
-# Parse XML response to extract token and site ID
-root = ET.fromstring(auth_response.text)
-ns = {'t': 'http://tableau.com/api'}
-token = root.find('.//t:credentials', ns).attrib['token']
-site_id = root.find('.//t:site', ns).attrib['id']
+# Parse JSON response to extract token and site ID
+auth_data = auth_response.json()
+token = auth_data['credentials']['token']
+site_id = auth_data['credentials']['site']['id']
 
 print(f"✅ Authenticated successfully (site ID: {site_id})")
 

@@ -18,5 +18,5 @@ This will install the poetry dependencies listed in the pyproject.toml file and 
 
 ```shell
 $ poetry install
-$ poetry run pyton3 main.py
+$ poetry run python3 main.py
 ```
